@@ -17,26 +17,48 @@ public class NewsService {
 
     public List<ArticleResponse> getNews() {
 
-        String url = "https://api.rss2json.com/v1/api.json?rss_url=https://it.motorsport.com/rss/f1/news/";
+        try {
 
-        HttpResponse<String> response = Unirest.get(url).asString();
+            String url = "https://api.rss2json.com/v1/api.json?rss_url=https://it.motorsport.com/rss/f1/news/";
 
-        Rss2JsonResponse rss = mapper.readValue(response.getBody(), Rss2JsonResponse.class);
-        String source = rss.feed().title().split(" - ")[0];
+            HttpResponse<String> response = Unirest.get(url).asString();
 
-        return rss.items()
-                .stream()
-                .map(item -> new ArticleResponse(
-                        item.guid() != null ? item.guid() : item.link(),
-                        item.title(),
-                        stripHtml(item.description()),
-                        stripHtml(item.content()),
-                        extractImage(item),
-                        item.link(),
-                        item.pubDate(),
-                        source
-                ))
-                .toList();
+            if (response.getStatus() != 200) {
+                throw new RuntimeException("Errore nella chiamata all'API RSS");
+            }
+
+            if (response.getBody() == null) {
+                throw new RuntimeException("Risposta vuota dall'API RSS");
+            }
+
+            Rss2JsonResponse rss = mapper.readValue(response.getBody(), Rss2JsonResponse.class);
+
+            if (rss.items() == null || rss.items().isEmpty()) {
+                throw new RuntimeException("Nessun articolo trovato");
+            }
+
+            String source = rss.feed().title().split(" - ")[0];
+
+            return rss.items()
+                    .stream()
+                    .map(item -> new ArticleResponse(
+                            item.guid() != null ? item.guid() : item.link(),
+                            item.title(),
+                            stripHtml(item.description()),
+                            stripHtml(item.content()),
+                            extractImage(item),
+                            item.link(),
+                            item.pubDate(),
+                            source
+                    ))
+                    .toList();
+
+        } catch (Exception e) {
+
+            System.out.println("Errore nel recupero delle news: " + e.getMessage());
+
+            return List.of();
+        }
     }
 
     private String extractImage(Rss2JsonResponse.Item item) {
@@ -62,7 +84,7 @@ public class NewsService {
         }
 
         text = text.trim();
-        
+
 
         return text;
     }
