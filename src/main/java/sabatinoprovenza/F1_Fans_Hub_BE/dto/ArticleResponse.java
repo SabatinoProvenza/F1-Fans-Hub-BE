@@ -4,6 +4,7 @@ public record ArticleResponse(
         String id,
         String title,
         String description,
+        String content,
         String image,
         String link,
         String pubDate,

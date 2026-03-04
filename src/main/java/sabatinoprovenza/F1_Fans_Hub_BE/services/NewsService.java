@@ -5,6 +5,7 @@ import kong.unirest.Unirest;
 import org.springframework.stereotype.Service;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.ArticleResponse;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.Rss2JsonResponse;
+import sabatinoprovenza.F1_Fans_Hub_BE.exceptions.NotFoundException;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
@@ -14,13 +15,14 @@ public class NewsService {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public List<ArticleResponse> getNews() throws Exception {
+    public List<ArticleResponse> getNews() {
 
         String url = "https://api.rss2json.com/v1/api.json?rss_url=https://it.motorsport.com/rss/f1/news/";
 
         HttpResponse<String> response = Unirest.get(url).asString();
 
         Rss2JsonResponse rss = mapper.readValue(response.getBody(), Rss2JsonResponse.class);
+        String source = rss.feed().title().split(" - ")[0];
 
         return rss.items()
                 .stream()
@@ -28,10 +30,11 @@ public class NewsService {
                         item.guid() != null ? item.guid() : item.link(),
                         item.title(),
                         stripHtml(item.description()),
+                        stripHtml(item.content()),
                         extractImage(item),
                         item.link(),
                         item.pubDate(),
-                        rss.feed().title()
+                        source
                 ))
                 .toList();
     }
@@ -59,14 +62,19 @@ public class NewsService {
         }
 
         text = text.trim();
-
-        // tronca a 160 caratteri
-        int maxLength = 160;
-
-        if (text.length() > maxLength) {
-            text = text.substring(0, maxLength) + "...";
-        }
+        
 
         return text;
+    }
+
+    public ArticleResponse getNewsById(String id) {
+        try {
+            return getNews().stream()
+                    .filter(a -> a.id().equals(id))
+                    .findFirst()
+                    .orElseThrow(() -> new NotFoundException("Articolo non trovato"));
+        } catch (Exception e) {
+            throw new NotFoundException("L'articolo non è stato trovato");
+        }
     }
 }
