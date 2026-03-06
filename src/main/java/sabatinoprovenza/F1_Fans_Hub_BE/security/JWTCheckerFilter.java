@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import sabatinoprovenza.F1_Fans_Hub_BE.entities.User;
-import sabatinoprovenza.F1_Fans_Hub_BE.exceptions.UnauthorizedException;
 import sabatinoprovenza.F1_Fans_Hub_BE.services.UserService;
 
 import java.io.IOException;
@@ -28,21 +27,33 @@ public class JWTCheckerFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        //CONTROLLO HEADER
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+
         String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer "))
-            throw new UnauthorizedException("Token non valido!");
 
-        String token = authHeader.replace("Bearer ", "");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-        jwtTools.verifyToken(token);
+        String token = authHeader.substring(7);
 
-        UUID userId = jwtTools.extractIdFromToken(token);
-        User user = this.userService.findById(userId);
+        try {
+            jwtTools.verifyToken(token);
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+            UUID userId = jwtTools.extractIdFromToken(token);
+            User user = this.userService.findById(userId);
+
+            Authentication authentication =
+                    new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        } catch (Exception ex) {
+            SecurityContextHolder.clearContext();
+        }
 
         filterChain.doFilter(request, response);
     }

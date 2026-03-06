@@ -19,6 +19,10 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("L'utente con email: " + email + " non è stato trovato"));
+    }
+
     public User findById(UUID id) {
         return userRepository.findById(id).orElseThrow(() -> new NotFoundException("L'utente con id: " + id + " non è stato trovato"));
     }
