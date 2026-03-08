@@ -31,10 +31,7 @@ public class AuthService {
         if (this.userService.existByEmail(dto.email())) {
             throw new BadRequestException("Email già in uso!");
         }
-        User u = new User();
-        u.setFullName(dto.fullName());
-        u.setEmail(dto.email());
-        u.setPassword(bcrypt.encode(dto.password()));
+        User u = new User(dto.username(), dto.name(), dto.surname(), dto.email(), bcrypt.encode(dto.password()));
 
         return this.userRepository.save(u);
     }

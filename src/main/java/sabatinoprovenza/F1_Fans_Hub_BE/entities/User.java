@@ -19,13 +19,22 @@ public class User implements UserDetails {
     private UUID id;
 
     @Column(nullable = false)
-    private String fullName;
+    private String username;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
+    private String surname;
 
     @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)
     private String password;
+
+    @Column
+    private String image;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -37,24 +46,33 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(String fullName, String email, String password, Role role) {
-        this.fullName = fullName;
+    public User(String username, String name, String surname, String email, String password) {
+        this.username = username;
+        this.name = name;
+        this.surname = surname;
         this.email = email;
         this.password = password;
-        this.role = role;
+        this.image = "https://ui-avatars.com/api/?name=" + name + "+" + surname;
     }
 
     public UUID getId() {
         return id;
     }
 
-
-    public String getFullName() {
-        return fullName;
+    public String getName() {
+        return name;
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
     }
 
     public String getEmail() {
@@ -81,6 +99,10 @@ public class User implements UserDetails {
     @Override
     public String getUsername() {
         return email;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public Role getRole() {

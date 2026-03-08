@@ -6,8 +6,12 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record RegisterDTO(
-        @NotBlank(message = "Il nome completo è obbligatorio")
-        String fullName,
+        @NotBlank(message = "Il nome è obbligatorio")
+        String name,
+        @NotBlank(message = "Il cognome è obbligatorio")
+        String surname,
+        @NotBlank(message = "L'username è obbligatorio")
+        String username,
         @NotBlank(message = "L'email è obbligatoria")
         @Email
         String email,

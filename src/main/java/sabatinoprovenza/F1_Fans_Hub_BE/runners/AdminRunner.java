@@ -15,8 +15,14 @@ public class AdminRunner implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
 
-    @Value("${admin.fullName}")
-    private String adminFullName;
+    @Value("${admin.name}")
+    private String adminName;
+
+    @Value("${admin.surname}")
+    private String adminSurname;
+
+    @Value("${admin.username}")
+    private String adminUsername;
 
     @Value("${admin.email}")
     private String adminEmail;
@@ -36,7 +42,9 @@ public class AdminRunner implements CommandLineRunner {
 
         if (!userService.existByEmail(adminEmail)) {
             User admin = new User();
-            admin.setFullName(adminFullName);
+            admin.setName(adminName);
+            admin.setSurname(adminSurname);
+            admin.setUsername(adminUsername);
             admin.setEmail(adminEmail);
             admin.setPassword(passwordEncoder.encode(adminPassword));
             admin.setRole(Role.ADMIN);
