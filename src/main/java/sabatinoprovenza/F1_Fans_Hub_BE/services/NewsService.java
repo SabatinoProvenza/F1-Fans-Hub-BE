@@ -90,13 +90,11 @@ public class NewsService {
     }
 
     public ArticleResponse getNewsById(String id) {
-        try {
-            return getNews().stream()
-                    .filter(a -> a.id().equals(id))
-                    .findFirst()
-                    .orElseThrow(() -> new NotFoundException("Articolo non trovato"));
-        } catch (Exception e) {
-            throw new NotFoundException("L'articolo non è stato trovato");
-        }
+
+        return getNews().stream()
+                .filter(a -> a.id().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Articolo non trovato"));
+
     }
 }

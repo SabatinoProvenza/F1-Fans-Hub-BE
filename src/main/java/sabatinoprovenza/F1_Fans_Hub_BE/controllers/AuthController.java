@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.LoginDTO;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.LoginResponseDTO;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.RegisterDTO;
-import sabatinoprovenza.F1_Fans_Hub_BE.entities.User;
+import sabatinoprovenza.F1_Fans_Hub_BE.dto.UserResponse;
 import sabatinoprovenza.F1_Fans_Hub_BE.services.AuthService;
 
 @RestController
@@ -23,8 +23,8 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public User createUser(@RequestBody @Valid RegisterDTO dto) {
-        return this.authService.UserRegister(dto);
+    public UserResponse createUser(@RequestBody @Valid RegisterDTO dto) {
+        return this.authService.userRegister(dto);
     }
 
     @PostMapping("/login")
