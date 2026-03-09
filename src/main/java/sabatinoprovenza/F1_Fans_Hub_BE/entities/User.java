@@ -96,9 +96,8 @@ public class User implements UserDetails {
         this.password = password;
     }
 
-    @Override
     public String getUsername() {
-        return email;
+        return username;
     }
 
     public void setUsername(String username) {

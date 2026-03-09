@@ -51,4 +51,18 @@ public class AuthService {
             throw new UnauthorizedException("Le credenziali inserite sono errate!");
         }
     }
+
+    public UserResponse getCurrentUser(User currentUser) {
+        if (currentUser == null) {
+            throw new UnauthorizedException("Utente non autenticato");
+        }
+
+        return new UserResponse(
+                currentUser.getId(),
+                currentUser.getName(),
+                currentUser.getSurname(),
+                currentUser.getUsername(),
+                currentUser.getEmail()
+        );
+    }
 }
