@@ -50,7 +50,8 @@ public class NewsService {
                             extractImage(item),
                             item.getLink() != null ? item.getLink() : "",
                             formatDate(item.getPublishedDate()),
-                            source
+                            source,
+                            false
                     ))
                     .toList();
 

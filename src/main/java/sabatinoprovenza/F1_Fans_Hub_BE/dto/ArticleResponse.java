@@ -8,6 +8,7 @@ public record ArticleResponse(
         String image,
         String link,
         String pubDate,
-        String source
+        String source,
+        boolean isFavorite
 ) {
 }

@@ -10,19 +10,54 @@ import sabatinoprovenza.F1_Fans_Hub_BE.repositories.ArticleRepository;
 import sabatinoprovenza.F1_Fans_Hub_BE.repositories.FavoriteRepository;
 import sabatinoprovenza.F1_Fans_Hub_BE.repositories.UserRepository;
 
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class FavoriteService {
     private final FavoriteRepository favoriteRepository;
     private final UserRepository userRepository;
     private final ArticleRepository articleRepository;
+    private final NewsService newsService;
 
 
-    public FavoriteService(FavoriteRepository favoriteRepository, UserRepository userRepository, ArticleRepository articleRepository) {
+    public FavoriteService(FavoriteRepository favoriteRepository, UserRepository userRepository, ArticleRepository articleRepository, NewsService newsService) {
         this.favoriteRepository = favoriteRepository;
         this.userRepository = userRepository;
         this.articleRepository = articleRepository;
+        this.newsService = newsService;
+    }
+
+    public ArticleResponse getNewsByIdWithFavorite(String id, UUID userId) {
+        return getNewsWithFavorite(userId).stream()
+                .filter(article -> article.id().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Articolo non trovato"));
+    }
+
+    public List<ArticleResponse> getNewsWithFavorite(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Utente non trovato"));
+
+        Set<String> favoriteIds = favoriteRepository.findByUser(user).stream()
+                .map(favorite -> favorite.getArticle().getGuid())
+                .collect(Collectors.toSet());
+
+        return newsService.getNews().stream()
+                .map(article -> new ArticleResponse(
+                        article.id(),
+                        article.title(),
+                        article.description(),
+                        article.content(),
+                        article.image(),
+                        article.link(),
+                        article.pubDate(),
+                        article.source(),
+                        favoriteIds.contains(article.id())
+                ))
+                .toList();
     }
 
     public ArticleResponse addFavorite(UUID userId, ArticleResponse articleResponse) {
@@ -58,7 +93,8 @@ public class FavoriteService {
                 article.getImageUrl(),
                 article.getLink(),
                 article.getPubDate(),
-                article.getSource()
+                article.getSource(),
+                true
         );
     }
 }
