@@ -101,6 +101,11 @@
             <artifactId>unirest-java</artifactId>
             <version>3.14.5</version>
         </dependency>
+        <dependency>
+            <groupId>com.rometools</groupId>
+            <artifactId>rome</artifactId>
+            <version>1.18.0</version>
+        </dependency>
     </dependencies>
 
     <build>
