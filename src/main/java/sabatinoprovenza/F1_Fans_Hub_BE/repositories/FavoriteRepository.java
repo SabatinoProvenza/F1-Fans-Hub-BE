@@ -6,7 +6,6 @@ import sabatinoprovenza.F1_Fans_Hub_BE.entities.Favorite;
 import sabatinoprovenza.F1_Fans_Hub_BE.entities.User;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface FavoriteRepository extends JpaRepository<Favorite, UUID> {
@@ -14,7 +13,7 @@ public interface FavoriteRepository extends JpaRepository<Favorite, UUID> {
 
     void deleteByUserAndArticle(User user, Article article);
 
-    Optional<Favorite> findByUserAndArticle(User user, Article article);
+    boolean existsByArticle(Article article);
 
     boolean existsByUserAndArticle(User user, Article article);
 }

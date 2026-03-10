@@ -37,4 +37,13 @@ public class FavoriteController {
         return favoriteService.getFavorites(currentUser.getId());
     }
 
+    @DeleteMapping("/{articleId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeFavorite(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable String articleId
+    ) {
+        favoriteService.removeFavorite(currentUser.getId(), articleId);
+    }
+
 }

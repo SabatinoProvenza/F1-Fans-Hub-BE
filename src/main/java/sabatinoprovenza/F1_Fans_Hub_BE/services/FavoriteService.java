@@ -1,5 +1,6 @@
 package sabatinoprovenza.F1_Fans_Hub_BE.services;
 
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.ArticleResponse;
 import sabatinoprovenza.F1_Fans_Hub_BE.entities.Article;
@@ -82,6 +83,26 @@ public class FavoriteService {
                     );
                 })
                 .toList();
+    }
+
+    @Transactional
+    public void removeFavorite(UUID userId, String articleId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Utente non trovato"));
+
+        Article article = articleRepository.findByGuid(articleId)
+                .orElseThrow(() -> new NotFoundException("Articolo non trovato"));
+
+        if (!favoriteRepository.existsByUserAndArticle(user, article)) {
+            throw new NotFoundException("Preferito non trovato");
+        }
+
+        favoriteRepository.deleteByUserAndArticle(user, article);
+
+        if (!favoriteRepository.existsByArticle(article)) {
+            articleRepository.delete(article);
+        }
     }
 
     public ArticleResponse addFavorite(UUID userId, ArticleResponse articleResponse) {
