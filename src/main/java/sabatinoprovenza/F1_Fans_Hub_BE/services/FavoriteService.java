@@ -60,6 +60,30 @@ public class FavoriteService {
                 .toList();
     }
 
+    public List<ArticleResponse> getFavorites(UUID userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Utente non trovato"));
+
+        return favoriteRepository.findByUser(user).stream()
+                .map(favorite -> {
+                    Article article = favorite.getArticle();
+
+                    return new ArticleResponse(
+                            article.getGuid(),
+                            article.getTitle(),
+                            article.getDescription(),
+                            article.getContent(),
+                            article.getImageUrl(),
+                            article.getLink(),
+                            article.getPubDate(),
+                            article.getSource(),
+                            true
+                    );
+                })
+                .toList();
+    }
+
     public ArticleResponse addFavorite(UUID userId, ArticleResponse articleResponse) {
 
         User user = userRepository.findById(userId)

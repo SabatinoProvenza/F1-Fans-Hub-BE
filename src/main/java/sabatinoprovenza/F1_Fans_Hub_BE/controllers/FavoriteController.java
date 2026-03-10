@@ -7,6 +7,8 @@ import sabatinoprovenza.F1_Fans_Hub_BE.dto.ArticleResponse;
 import sabatinoprovenza.F1_Fans_Hub_BE.entities.User;
 import sabatinoprovenza.F1_Fans_Hub_BE.services.FavoriteService;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/favorites")
 public class FavoriteController {
@@ -27,4 +29,12 @@ public class FavoriteController {
 
 
     }
+
+    @GetMapping
+    public List<ArticleResponse> getFavorites(
+            @AuthenticationPrincipal User currentUser
+    ) {
+        return favoriteService.getFavorites(currentUser.getId());
+    }
+
 }
