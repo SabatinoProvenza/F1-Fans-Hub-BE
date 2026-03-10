@@ -26,7 +26,6 @@ public class NewsService {
             if (response.getStatus() != 200) {
                 throw new RuntimeException("Errore nella chiamata all'API RSS");
             }
-
             if (response.getBody() == null) {
                 throw new RuntimeException("Risposta vuota dall'API RSS");
             }

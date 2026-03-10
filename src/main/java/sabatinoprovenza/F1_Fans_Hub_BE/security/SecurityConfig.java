@@ -10,6 +10,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -20,6 +21,11 @@ import java.util.List;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+    private final JWTCheckerFilter jwtCheckerFilter;
+
+    public SecurityConfig(JWTCheckerFilter jwtCheckerFilter) {
+        this.jwtCheckerFilter = jwtCheckerFilter;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) {
@@ -28,7 +34,14 @@ public class SecurityConfig {
         httpSecurity.formLogin(formLogin -> formLogin.disable());
         httpSecurity.csrf(csrf -> csrf.disable());
         httpSecurity.sessionManagement(sessions -> sessions.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        httpSecurity.authorizeHttpRequests(req -> req.requestMatchers("/**").permitAll());
+        httpSecurity.authorizeHttpRequests(req -> req
+                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/api").permitAll()
+                .requestMatchers("/favorites/**").authenticated()
+                .anyRequest().permitAll()
+        );
+
+        httpSecurity.addFilterBefore(jwtCheckerFilter, UsernamePasswordAuthenticationFilter.class);
 
         httpSecurity.cors(Customizer.withDefaults());
 

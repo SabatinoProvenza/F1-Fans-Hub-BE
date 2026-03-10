@@ -18,18 +18,6 @@ public class Favorite {
     @GeneratedValue
     private UUID id;
 
-    @Column(name = "article_id", nullable = false)
-    private String articleId;
-
-    @Column(name = "article_title", nullable = false)
-    private String articleTitle;
-
-    @Column(name = "article_url", nullable = false)
-    private String articleUrl;
-
-    @Column(name = "image_url")
-    private String imageUrl;
-
     @Column(name = "saved_at", nullable = false)
     private LocalDateTime savedAt;
 
@@ -37,16 +25,32 @@ public class Favorite {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "article_id", nullable = false)
+    private Article article;
+
     public Favorite() {
     }
 
-    public Favorite(String articleId, String articleTitle, String articleUrl, String imageUrl, LocalDateTime savedAt, User user) {
-        this.articleId = articleId;
-        this.articleTitle = articleTitle;
-        this.articleUrl = articleUrl;
-        this.imageUrl = imageUrl;
-        this.savedAt = savedAt;
+    public Favorite(User user, Article article) {
+        this.savedAt = LocalDateTime.now();
         this.user = user;
+        this.article = article;
     }
 
+    public UUID getId() {
+        return id;
+    }
+
+    public LocalDateTime getSavedAt() {
+        return savedAt;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public Article getArticle() {
+        return article;
+    }
 }
