@@ -31,6 +31,9 @@ public class AuthService {
         if (userService.existByEmail(dto.email()))
             throw new BadRequestException("Email già in uso!");
 
+        if (userService.existByUsername(dto.username()))
+            throw new BadRequestException("Username già in uso!");
+
         User u = userRepository.save(new User(
                 dto.username(), dto.name(), dto.surname(), dto.email(), bcrypt.encode(dto.password())
         ));
