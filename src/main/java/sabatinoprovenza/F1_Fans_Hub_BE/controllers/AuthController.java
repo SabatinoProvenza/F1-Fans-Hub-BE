@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.*;
 import sabatinoprovenza.F1_Fans_Hub_BE.entities.User;
 import sabatinoprovenza.F1_Fans_Hub_BE.services.AuthService;
@@ -54,6 +55,15 @@ public class AuthController {
             @AuthenticationPrincipal User currentUser
     ) {
         return userService.updateEmail(request, currentUser);
+    }
+
+    @PatchMapping("/me/image")
+    public UserResponse updateImage(
+            @RequestParam("image")
+            MultipartFile file,
+            @AuthenticationPrincipal User currentUser
+    ) {
+        return userService.uploadImage(currentUser, file);
     }
 
 }
