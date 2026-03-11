@@ -2,7 +2,6 @@ package sabatinoprovenza.F1_Fans_Hub_BE.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import sabatinoprovenza.F1_Fans_Hub_BE.entities.Role;
 import sabatinoprovenza.F1_Fans_Hub_BE.entities.User;
 
 import java.util.Optional;
@@ -18,5 +17,4 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     boolean existsByUsername(String username);
 
 
-    Optional<User> findByRole(Role role);
 }

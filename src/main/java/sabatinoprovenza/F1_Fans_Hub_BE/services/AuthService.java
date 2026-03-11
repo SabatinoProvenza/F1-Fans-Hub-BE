@@ -38,7 +38,7 @@ public class AuthService {
                 dto.username(), dto.name(), dto.surname(), dto.email(), bcrypt.encode(dto.password())
         ));
 
-        return new UserResponse(u.getId(), u.getName(), u.getSurname(), u.getUsername(), u.getEmail());
+        return new UserResponse(u.getId(), u.getName(), u.getSurname(), u.getUsername(), u.getEmail(), u.getImage());
     }
 
     public LoginResponseDTO UserLogin(LoginDTO dto) {
@@ -65,7 +65,9 @@ public class AuthService {
                 currentUser.getName(),
                 currentUser.getSurname(),
                 currentUser.getUsername(),
-                currentUser.getEmail()
+                currentUser.getEmail(),
+                currentUser.getImage()
+
         );
     }
 }

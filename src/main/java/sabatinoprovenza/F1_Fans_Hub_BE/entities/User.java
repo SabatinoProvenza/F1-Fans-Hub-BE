@@ -112,6 +112,14 @@ public class User implements UserDetails {
         this.role = role;
     }
 
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
     public List<Favorite> getFavorites() {
         return favorites;
     }

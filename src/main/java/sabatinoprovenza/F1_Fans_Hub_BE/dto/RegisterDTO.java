@@ -13,7 +13,7 @@ public record RegisterDTO(
         @NotBlank(message = "L'username è obbligatorio")
         String username,
         @NotBlank(message = "L'email è obbligatoria")
-        @Email
+        @Email(message = "Formato dell'email non valido")
         String email,
         @NotBlank
         @Size(min = 6, message = "La password deve essere di almeno sei caratteri")
