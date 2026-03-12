@@ -86,19 +86,17 @@ public class FavoriteService {
     }
 
     @Transactional
-    public void removeFavorite(UUID userId, String articleId) {
+    public void removeFavorite(User currentUser, String articleId) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Utente non trovato"));
 
         Article article = articleRepository.findByGuid(articleId)
                 .orElseThrow(() -> new NotFoundException("Articolo non trovato"));
 
-        if (!favoriteRepository.existsByUserAndArticle(user, article)) {
+        if (!favoriteRepository.existsByUserAndArticle(currentUser, article)) {
             throw new NotFoundException("Preferito non trovato");
         }
 
-        favoriteRepository.deleteByUserAndArticle(user, article);
+        favoriteRepository.deleteByUserAndArticle(currentUser, article);
 
         if (!favoriteRepository.existsByArticle(article)) {
             articleRepository.delete(article);

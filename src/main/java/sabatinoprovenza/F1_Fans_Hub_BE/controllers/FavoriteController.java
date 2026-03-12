@@ -43,7 +43,7 @@ public class FavoriteController {
             @AuthenticationPrincipal User currentUser,
             @PathVariable String articleId
     ) {
-        favoriteService.removeFavorite(currentUser.getId(), articleId);
+        favoriteService.removeFavorite(currentUser, articleId);
     }
 
 }

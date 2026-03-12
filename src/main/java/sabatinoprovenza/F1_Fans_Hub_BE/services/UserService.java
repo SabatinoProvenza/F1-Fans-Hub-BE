@@ -2,9 +2,11 @@ package sabatinoprovenza.F1_Fans_Hub_BE.services;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.UpdateEmailRequest;
+import sabatinoprovenza.F1_Fans_Hub_BE.dto.UpdatePasswordRequest;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.UpdateUsernameRequest;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.UserResponse;
 import sabatinoprovenza.F1_Fans_Hub_BE.entities.User;
@@ -20,10 +22,12 @@ import java.util.UUID;
 public class UserService {
     private final UserRepository userRepository;
     private final Cloudinary cloudinary;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, Cloudinary cloudinary) {
+    public UserService(UserRepository userRepository, Cloudinary cloudinary, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.cloudinary = cloudinary;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public boolean existByEmail(String email) {
@@ -83,6 +87,25 @@ public class UserService {
                 currentUser.getEmail(),
                 currentUser.getImage()
         );
+    }
+
+    public void updatePassword(User currentUser, UpdatePasswordRequest request) {
+
+
+        if (!passwordEncoder.matches(request.currentPassword(), currentUser.getPassword())) {
+            throw new BadRequestException("La password attuale non è corretta");
+        }
+
+        if (!request.newPassword().equals(request.confirmPassword())) {
+            throw new BadRequestException("Le password non coincidono");
+        }
+
+        if (passwordEncoder.matches(request.newPassword(), currentUser.getPassword())) {
+            throw new BadRequestException("La nuova password non può essere uguale a quella attuale");
+        }
+
+        currentUser.setPassword(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(currentUser);
     }
 
     public UserResponse uploadImage(User currentUser, MultipartFile file) {

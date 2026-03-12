@@ -21,14 +21,10 @@ import java.util.List;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-    private final JWTCheckerFilter jwtCheckerFilter;
 
-    public SecurityConfig(JWTCheckerFilter jwtCheckerFilter) {
-        this.jwtCheckerFilter = jwtCheckerFilter;
-    }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) {
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, JWTCheckerFilter jwtCheckerFilter) {
 
 
         httpSecurity.formLogin(formLogin -> formLogin.disable());

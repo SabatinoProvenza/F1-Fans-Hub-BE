@@ -57,6 +57,15 @@ public class AuthController {
         return userService.updateEmail(request, currentUser);
     }
 
+    @PatchMapping("/me/password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void changePassword(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody UpdatePasswordRequest request
+    ) {
+        userService.updatePassword(user, request);
+    }
+
     @PatchMapping("/me/image")
     public UserResponse updateImage(
             @RequestParam("image")
