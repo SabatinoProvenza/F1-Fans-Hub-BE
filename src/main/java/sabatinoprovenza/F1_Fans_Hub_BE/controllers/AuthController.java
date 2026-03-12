@@ -31,7 +31,7 @@ public class AuthController {
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
     public LoginResponseDTO login(@RequestBody @Valid LoginDTO dto) {
-        return this.authService.UserLogin(dto);
+        return this.authService.userLogin(dto);
     }
 
     @GetMapping("/me")

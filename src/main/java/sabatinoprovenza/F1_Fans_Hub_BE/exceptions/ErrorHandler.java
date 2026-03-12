@@ -24,7 +24,7 @@ public class ErrorHandler {
                 .toList();
 
         return new ErrorsDTO(
-                "Errori nel payload",
+                "Controlla i dati inseriti",
                 LocalDateTime.now(),
                 errors
         );
@@ -34,7 +34,17 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ErrorsDTO handleUnauthorizedException(UnauthorizedException ex) {
 
-        
+
+        return new ErrorsDTO(
+                ex.getMessage(),
+                LocalDateTime.now(),
+                List.of(ex.getMessage())
+        );
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorsDTO handleBadRequestException(BadRequestException ex) {
         return new ErrorsDTO(
                 ex.getMessage(),
                 LocalDateTime.now(),

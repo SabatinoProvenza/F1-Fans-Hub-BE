@@ -41,18 +41,15 @@ public class AuthService {
         return new UserResponse(u.getId(), u.getName(), u.getSurname(), u.getUsername(), u.getEmail(), u.getImage());
     }
 
-    public LoginResponseDTO UserLogin(LoginDTO dto) {
+    public LoginResponseDTO userLogin(LoginDTO dto) {
+        User found = this.userService.findByEmailForLogin(dto.email());
 
-        User found = this.userService.findByEmail(dto.email());
-
-        if (bcrypt.matches(dto.password(), found.getPassword())) {
-
-            String token = jwtTools.generateToken(found);
-            return new LoginResponseDTO(token);
-
-        } else {
+        if (!bcrypt.matches(dto.password(), found.getPassword())) {
             throw new UnauthorizedException("Le credenziali inserite sono errate!");
         }
+
+        String token = jwtTools.generateToken(found);
+        return new LoginResponseDTO(token);
     }
 
     public UserResponse getCurrentUser(User currentUser) {

@@ -12,6 +12,7 @@ import sabatinoprovenza.F1_Fans_Hub_BE.dto.UserResponse;
 import sabatinoprovenza.F1_Fans_Hub_BE.entities.User;
 import sabatinoprovenza.F1_Fans_Hub_BE.exceptions.BadRequestException;
 import sabatinoprovenza.F1_Fans_Hub_BE.exceptions.NotFoundException;
+import sabatinoprovenza.F1_Fans_Hub_BE.exceptions.UnauthorizedException;
 import sabatinoprovenza.F1_Fans_Hub_BE.repositories.UserRepository;
 
 import java.io.IOException;
@@ -40,6 +41,11 @@ public class UserService {
 
     public User findByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("L'utente con email: " + email + " non è stato trovato"));
+    }
+
+    public User findByEmailForLogin(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UnauthorizedException("Le credenziali inserite sono errate!"));
     }
 
     public User findById(UUID id) {
