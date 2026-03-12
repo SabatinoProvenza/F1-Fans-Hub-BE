@@ -16,4 +16,6 @@ public interface FavoriteRepository extends JpaRepository<Favorite, UUID> {
     boolean existsByArticle(Article article);
 
     boolean existsByUserAndArticle(User user, Article article);
+
+    List<Favorite> findByUserOrderBySavedAtDesc(User user);
 }

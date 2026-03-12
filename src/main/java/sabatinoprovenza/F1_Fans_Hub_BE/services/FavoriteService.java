@@ -3,6 +3,7 @@ package sabatinoprovenza.F1_Fans_Hub_BE.services;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.ArticleResponse;
+import sabatinoprovenza.F1_Fans_Hub_BE.dto.FavoriteResponse;
 import sabatinoprovenza.F1_Fans_Hub_BE.entities.Article;
 import sabatinoprovenza.F1_Fans_Hub_BE.entities.Favorite;
 import sabatinoprovenza.F1_Fans_Hub_BE.entities.User;
@@ -61,16 +62,15 @@ public class FavoriteService {
                 .toList();
     }
 
-    public List<ArticleResponse> getFavorites(UUID userId) {
-
+    public List<FavoriteResponse> getFavorites(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Utente non trovato"));
 
-        return favoriteRepository.findByUser(user).stream()
+        return favoriteRepository.findByUserOrderBySavedAtDesc(user).stream()
                 .map(favorite -> {
                     Article article = favorite.getArticle();
 
-                    return new ArticleResponse(
+                    return new FavoriteResponse(
                             article.getGuid(),
                             article.getTitle(),
                             article.getDescription(),
@@ -79,7 +79,8 @@ public class FavoriteService {
                             article.getLink(),
                             article.getPubDate(),
                             article.getSource(),
-                            true
+                            true,
+                            favorite.getSavedAt()
                     );
                 })
                 .toList();

@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.ArticleResponse;
+import sabatinoprovenza.F1_Fans_Hub_BE.dto.FavoriteResponse;
 import sabatinoprovenza.F1_Fans_Hub_BE.entities.User;
 import sabatinoprovenza.F1_Fans_Hub_BE.services.FavoriteService;
 
@@ -31,7 +32,7 @@ public class FavoriteController {
     }
 
     @GetMapping
-    public List<ArticleResponse> getFavorites(
+    public List<FavoriteResponse> getFavorites(
             @AuthenticationPrincipal User currentUser
     ) {
         return favoriteService.getFavorites(currentUser.getId());
