@@ -39,6 +39,12 @@ public class AuthController {
         return this.authService.getCurrentUser(currentUser);
     }
 
+    @DeleteMapping("/me")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteMe(@AuthenticationPrincipal User currentUser) {
+        userService.deleteUser(currentUser.getId());
+    }
+
     @PatchMapping("/me/username")
     public UserResponse updateUsername(
             @Valid

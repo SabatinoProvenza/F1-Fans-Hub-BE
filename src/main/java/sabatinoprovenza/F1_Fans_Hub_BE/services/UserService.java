@@ -2,6 +2,7 @@ package sabatinoprovenza.F1_Fans_Hub_BE.services;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -9,13 +10,16 @@ import sabatinoprovenza.F1_Fans_Hub_BE.dto.UpdateEmailRequest;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.UpdatePasswordRequest;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.UpdateUsernameRequest;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.UserResponse;
+import sabatinoprovenza.F1_Fans_Hub_BE.entities.Favorite;
 import sabatinoprovenza.F1_Fans_Hub_BE.entities.User;
 import sabatinoprovenza.F1_Fans_Hub_BE.exceptions.BadRequestException;
 import sabatinoprovenza.F1_Fans_Hub_BE.exceptions.NotFoundException;
 import sabatinoprovenza.F1_Fans_Hub_BE.exceptions.UnauthorizedException;
+import sabatinoprovenza.F1_Fans_Hub_BE.repositories.FavoriteRepository;
 import sabatinoprovenza.F1_Fans_Hub_BE.repositories.UserRepository;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -24,11 +28,15 @@ public class UserService {
     private final UserRepository userRepository;
     private final Cloudinary cloudinary;
     private final PasswordEncoder passwordEncoder;
+    private final FavoriteService favoriteService;
+    private final FavoriteRepository favoriteRepository;
 
-    public UserService(UserRepository userRepository, Cloudinary cloudinary, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, Cloudinary cloudinary, PasswordEncoder passwordEncoder, FavoriteService favoriteService, FavoriteRepository favoriteRepository) {
         this.userRepository = userRepository;
         this.cloudinary = cloudinary;
         this.passwordEncoder = passwordEncoder;
+        this.favoriteService = favoriteService;
+        this.favoriteRepository = favoriteRepository;
     }
 
     public boolean existByEmail(String email) {
@@ -50,6 +58,20 @@ public class UserService {
 
     public User findById(UUID id) {
         return userRepository.findById(id).orElseThrow(() -> new NotFoundException("L'utente con id: " + id + " non è stato trovato"));
+    }
+
+    @Transactional
+    public void deleteUser(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Utente non trovato"));
+
+        List<Favorite> favorites = favoriteRepository.findByUser(user);
+
+        for (Favorite favorite : favorites) {
+            favoriteService.removeFavorite(user, favorite.getArticle().getGuid());
+        }
+
+        userRepository.delete(user);
     }
 
     public UserResponse updateUsername(UpdateUsernameRequest request, User currentUser) {
