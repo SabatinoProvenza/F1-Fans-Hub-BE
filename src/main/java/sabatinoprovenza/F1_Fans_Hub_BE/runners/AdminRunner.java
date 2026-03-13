@@ -46,6 +46,7 @@ public class AdminRunner implements CommandLineRunner {
             admin.setSurname(adminSurname);
             admin.setUsername(adminUsername);
             admin.setEmail(adminEmail);
+            admin.setImage("https://ui-avatars.com/api/?name=" + adminName + "+" + adminSurname);
             admin.setPassword(passwordEncoder.encode(adminPassword));
             admin.setRole(Role.ADMIN);
 
