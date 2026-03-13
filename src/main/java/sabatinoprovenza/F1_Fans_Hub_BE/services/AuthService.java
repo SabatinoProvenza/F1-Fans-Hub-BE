@@ -19,12 +19,14 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JWTTools jwtTools;
     private final PasswordEncoder bcrypt;
+    private final EmailService emailService;
 
-    public AuthService(UserService userService, UserRepository userRepository, JWTTools jwtTools, PasswordEncoder bcrypt) {
+    public AuthService(UserService userService, UserRepository userRepository, JWTTools jwtTools, PasswordEncoder bcrypt, EmailService emailService) {
         this.userService = userService;
         this.userRepository = userRepository;
         this.jwtTools = jwtTools;
         this.bcrypt = bcrypt;
+        this.emailService = emailService;
     }
 
     public UserResponse userRegister(RegisterDTO dto) {
@@ -37,6 +39,13 @@ public class AuthService {
         User u = userRepository.save(new User(
                 dto.username(), dto.name(), dto.surname(), dto.email(), bcrypt.encode(dto.password())
         ));
+
+        try {
+            emailService.sendWelcomeEmail(u.getEmail(), u.getUsername());
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Invio email di benvenuto fallito: {} " + e.getMessage());
+        }
 
         return new UserResponse(u.getId(), u.getName(), u.getSurname(), u.getUsername(), u.getEmail(), u.getImage());
     }
