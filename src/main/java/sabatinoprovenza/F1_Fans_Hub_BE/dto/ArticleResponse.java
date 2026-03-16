@@ -1,7 +1,10 @@
 package sabatinoprovenza.F1_Fans_Hub_BE.dto;
 
+import java.util.UUID;
+
 public record ArticleResponse(
-        String id,
+        UUID articleId,
+        String guid,
         String title,
         String description,
         String content,

@@ -1,9 +1,11 @@
 package sabatinoprovenza.F1_Fans_Hub_BE.dto;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public record FavoriteResponse(
-        String id,
+        UUID articleId,
+        String guid,
         String title,
         String description,
         String content,

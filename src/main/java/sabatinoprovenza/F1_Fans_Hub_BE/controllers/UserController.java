@@ -11,6 +11,8 @@ import sabatinoprovenza.F1_Fans_Hub_BE.services.AuthService;
 import sabatinoprovenza.F1_Fans_Hub_BE.services.FavoriteService;
 import sabatinoprovenza.F1_Fans_Hub_BE.services.UserService;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -36,10 +38,16 @@ public class UserController {
         userService.deleteUser(currentUser.getId());
     }
 
-    @GetMapping("/me/news/{id}")
-    public ArticleResponse getNewsDetailPrefs(@PathVariable String id,
+    @GetMapping("/me/news/{guid}")
+    public ArticleResponse getNewsDetailPrefs(@PathVariable String guid,
                                               @AuthenticationPrincipal User currentUser) {
-        return this.favoriteService.getNewsByIdWithFavorite(id, currentUser.getId());
+        return this.favoriteService.getNewsByIdWithFavorite(guid, currentUser.getId());
+    }
+
+    @GetMapping("me/articles/{articleId}")
+    public ArticleResponse getSavedArticleById(@PathVariable UUID articleId,
+                                               @AuthenticationPrincipal User currentUser) {
+        return favoriteService.getSavedArticleById(articleId, currentUser.getId());
     }
 
     @PatchMapping("/me/username")

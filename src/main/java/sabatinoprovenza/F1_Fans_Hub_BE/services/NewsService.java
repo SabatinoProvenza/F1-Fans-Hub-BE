@@ -43,6 +43,7 @@ public class NewsService {
             return feed.getEntries()
                     .stream()
                     .map(item -> new ArticleResponse(
+                            null,
                             item.getUri() != null ? item.getUri() : item.getLink(),
                             item.getTitle() != null ? item.getTitle() : "",
                             stripHtml(getDescription(item)),
@@ -143,9 +144,9 @@ public class NewsService {
                 .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
     }
 
-    public ArticleResponse getNewsById(String id) {
+    public ArticleResponse getNewsByGuid(String guid) {
         return getNews().stream()
-                .filter(a -> a.id().equals(id))
+                .filter(a -> a.guid().equals(guid))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Articolo non trovato"));
     }

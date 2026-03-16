@@ -32,9 +32,9 @@ public class FavoriteService {
         this.newsService = newsService;
     }
 
-    public ArticleResponse getNewsByIdWithFavorite(String id, UUID userId) {
+    public ArticleResponse getNewsByIdWithFavorite(String guid, UUID userId) {
         return getNewsWithFavorite(userId).stream()
-                .filter(article -> article.id().equals(id))
+                .filter(article -> article.guid().equals(guid))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Articolo non trovato"));
     }
@@ -43,22 +43,27 @@ public class FavoriteService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Utente non trovato"));
 
-        Set<String> favoriteIds = favoriteRepository.findByUser(user).stream()
+        Set<String> favoriteGuids = favoriteRepository.findByUser(user).stream()
                 .map(favorite -> favorite.getArticle().getGuid())
                 .collect(Collectors.toSet());
 
         return newsService.getNews().stream()
-                .map(article -> new ArticleResponse(
-                        article.id(),
-                        article.title(),
-                        article.description(),
-                        article.content(),
-                        article.image(),
-                        article.link(),
-                        article.pubDate(),
-                        article.source(),
-                        favoriteIds.contains(article.id())
-                ))
+                .map(newsArticle -> {
+                    Article savedArticle = articleRepository.findByGuid(newsArticle.guid()).orElse(null);
+
+                    return new ArticleResponse(
+                            savedArticle != null ? savedArticle.getId() : null,
+                            newsArticle.guid(),
+                            newsArticle.title(),
+                            newsArticle.description(),
+                            newsArticle.content(),
+                            newsArticle.image(),
+                            newsArticle.link(),
+                            newsArticle.pubDate(),
+                            newsArticle.source(),
+                            favoriteGuids.contains(newsArticle.guid())
+                    );
+                })
                 .toList();
     }
 
@@ -71,6 +76,7 @@ public class FavoriteService {
                     Article article = favorite.getArticle();
 
                     return new FavoriteResponse(
+                            article.getId(),
                             article.getGuid(),
                             article.getTitle(),
                             article.getDescription(),
@@ -87,10 +93,10 @@ public class FavoriteService {
     }
 
     @Transactional
-    public void removeFavorite(User currentUser, String articleId) {
+    public void removeFavorite(User currentUser, String articleGuid) {
 
 
-        Article article = articleRepository.findByGuid(articleId)
+        Article article = articleRepository.findByGuid(articleGuid)
                 .orElseThrow(() -> new NotFoundException("Articolo non trovato"));
 
         if (!favoriteRepository.existsByUserAndArticle(currentUser, article)) {
@@ -109,10 +115,10 @@ public class FavoriteService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Utente non trovato"));
 
-        Article article = articleRepository.findByGuid(articleResponse.id())
+        Article article = articleRepository.findByGuid(articleResponse.guid())
                 .orElseGet(() -> {
                     Article newArticle = new Article(
-                            articleResponse.id(),
+                            articleResponse.guid(),
                             articleResponse.title(),
                             articleResponse.description(),
                             articleResponse.content(),
@@ -130,6 +136,7 @@ public class FavoriteService {
         }
 
         return new ArticleResponse(
+                article.getId(),
                 article.getGuid(),
                 article.getTitle(),
                 article.getDescription(),
@@ -139,6 +146,29 @@ public class FavoriteService {
                 article.getPubDate(),
                 article.getSource(),
                 true
+        );
+    }
+
+    public ArticleResponse getSavedArticleById(UUID articleId, UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Utente non trovato"));
+
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new NotFoundException("Articolo non trovato"));
+
+        boolean isFavorite = favoriteRepository.existsByUserAndArticle(user, article);
+
+        return new ArticleResponse(
+                article.getId(),
+                article.getGuid(),
+                article.getTitle(),
+                article.getDescription(),
+                article.getContent(),
+                article.getImageUrl(),
+                article.getLink(),
+                article.getPubDate(),
+                article.getSource(),
+                isFavorite
         );
     }
 }

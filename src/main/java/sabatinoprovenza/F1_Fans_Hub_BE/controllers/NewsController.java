@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.ArticleResponse;
-import sabatinoprovenza.F1_Fans_Hub_BE.services.FavoriteService;
 import sabatinoprovenza.F1_Fans_Hub_BE.services.NewsService;
 
 import java.util.List;
@@ -15,11 +14,9 @@ import java.util.List;
 public class NewsController {
 
     private final NewsService newsService;
-    private final FavoriteService favoriteService;
 
-    public NewsController(NewsService newsService, FavoriteService favoriteService) {
+    public NewsController(NewsService newsService) {
         this.newsService = newsService;
-        this.favoriteService = favoriteService;
     }
 
     @GetMapping("/news")
@@ -27,9 +24,9 @@ public class NewsController {
         return newsService.getNews();
     }
 
-    @GetMapping("/news/{id}")
-    public ArticleResponse getNewsDetail(@PathVariable String id) {
-        return newsService.getNewsById(id);
+    @GetMapping("/news/{guid}")
+    public ArticleResponse getNewsDetail(@PathVariable String guid) {
+        return newsService.getNewsByGuid(guid);
     }
 
 }
