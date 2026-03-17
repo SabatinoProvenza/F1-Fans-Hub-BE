@@ -2,6 +2,7 @@ package sabatinoprovenza.F1_Fans_Hub_BE.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -35,6 +36,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/news/**").permitAll()
                 .requestMatchers("/favorites/**").authenticated()
                 .requestMatchers("/users/me/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/post").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/post/**").authenticated()
+                .requestMatchers(HttpMethod.PATCH, "/post/**").authenticated()
                 .anyRequest().permitAll()
         );
 

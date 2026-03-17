@@ -43,6 +43,15 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user")
     private List<Favorite> favorites = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user")
+    private List<Post> posts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<Comment> comments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<PostLike> likes = new ArrayList<>();
+
     public User() {
     }
 
@@ -126,5 +135,17 @@ public class User implements UserDetails {
 
     public void setFavorites(List<Favorite> favorites) {
         this.favorites = favorites;
+    }
+
+    public List<Post> getPosts() {
+        return posts;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public List<PostLike> getLikes() {
+        return likes;
     }
 }
