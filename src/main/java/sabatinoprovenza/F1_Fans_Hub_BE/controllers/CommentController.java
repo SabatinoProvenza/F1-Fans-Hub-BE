@@ -1,6 +1,9 @@
 package sabatinoprovenza.F1_Fans_Hub_BE.controllers;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -9,7 +12,6 @@ import sabatinoprovenza.F1_Fans_Hub_BE.dto.CommentResponse;
 import sabatinoprovenza.F1_Fans_Hub_BE.entities.User;
 import sabatinoprovenza.F1_Fans_Hub_BE.services.CommentService;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -31,10 +33,12 @@ public class CommentController {
     }
 
     @GetMapping("/post/{postId}/comments")
-    public List<CommentResponse> getCommentsByPost(
-            @PathVariable UUID postId
+    public Page<CommentResponse> getCommentsByPost(
+            @PathVariable UUID postId,
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "5") @Min(1) @Max(20) int size
     ) {
-        return commentService.getCommentsByPost(postId);
+        return commentService.getCommentsByPost(postId, page, size);
     }
 
     @PatchMapping("/comments/{commentId}")

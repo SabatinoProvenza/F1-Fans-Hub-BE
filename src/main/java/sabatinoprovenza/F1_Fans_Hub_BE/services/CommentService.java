@@ -1,5 +1,9 @@
 package sabatinoprovenza.F1_Fans_Hub_BE.services;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.CommentRequest;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.CommentResponse;
@@ -11,7 +15,6 @@ import sabatinoprovenza.F1_Fans_Hub_BE.exceptions.UnauthorizedException;
 import sabatinoprovenza.F1_Fans_Hub_BE.repositories.CommentRepository;
 import sabatinoprovenza.F1_Fans_Hub_BE.repositories.PostRepository;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -44,25 +47,25 @@ public class CommentService {
         );
     }
 
-    public List<CommentResponse> getCommentsByPost(UUID postId) {
+    public Page<CommentResponse> getCommentsByPost(UUID postId, int page, int size) {
 
         if (!postRepository.existsById(postId)) {
             throw new NotFoundException("Post non trovato");
         }
 
-        List<Comment> comments = commentRepository.findByPostIdOrderByCreatedAtDesc(postId);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
-        return comments.stream()
-                .map(comment -> new CommentResponse(
-                        comment.getId(),
-                        comment.getContent(),
-                        comment.getCreatedAt(),
-                        comment.getPost().getId(),
-                        comment.getUser().getId(),
-                        comment.getUser().getUsername(),
-                        comment.getUser().getImage()
-                ))
-                .toList();
+        Page<Comment> commentsPage = commentRepository.findByPostId(postId, pageable);
+
+        return commentsPage.map(comment -> new CommentResponse(
+                comment.getId(),
+                comment.getContent(),
+                comment.getCreatedAt(),
+                comment.getPost().getId(),
+                comment.getUser().getId(),
+                comment.getUser().getUsername(),
+                comment.getUser().getImage()
+        ));
     }
 
     public CommentResponse patchComment(UUID commentId, CommentRequest request, User currentUser) {

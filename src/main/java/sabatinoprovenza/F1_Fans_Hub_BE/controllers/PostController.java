@@ -1,6 +1,9 @@
 package sabatinoprovenza.F1_Fans_Hub_BE.controllers;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -9,7 +12,6 @@ import sabatinoprovenza.F1_Fans_Hub_BE.dto.PostResponse;
 import sabatinoprovenza.F1_Fans_Hub_BE.entities.User;
 import sabatinoprovenza.F1_Fans_Hub_BE.services.PostService;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -32,10 +34,12 @@ public class PostController {
     }
 
     @GetMapping
-    public List<PostResponse> getAllPosts(
-            @AuthenticationPrincipal User currentUser
+    public Page<PostResponse> getAllPosts(
+            @AuthenticationPrincipal User currentUser,
+            @RequestParam(defaultValue = "0") @Min(1) int page,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(20) int size
     ) {
-        return postService.getAllPosts(currentUser);
+        return postService.getAllPosts(currentUser, page, size);
     }
 
     @DeleteMapping("/{postId}")

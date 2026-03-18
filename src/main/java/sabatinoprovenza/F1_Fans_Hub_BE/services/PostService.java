@@ -2,6 +2,10 @@ package sabatinoprovenza.F1_Fans_Hub_BE.services;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.PostRequest;
@@ -16,7 +20,6 @@ import sabatinoprovenza.F1_Fans_Hub_BE.repositories.PostLikeRepository;
 import sabatinoprovenza.F1_Fans_Hub_BE.repositories.PostRepository;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -67,25 +70,25 @@ public class PostService {
         );
     }
 
-    public List<PostResponse> getAllPosts(User currentUser) {
+    public Page<PostResponse> getAllPosts(User currentUser, int page, int size) {
 
-        List<Post> posts = postRepository.findAllByOrderByCreatedAtDesc();
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
-        return posts.stream()
-                .map(post -> new PostResponse(
-                        post.getId(),
-                        post.getContent(),
-                        post.getImageUrl(),
-                        post.getCreatedAt(),
-                        post.getUpdatedAt(),
-                        post.getUser().getId(),
-                        post.getUser().getUsername(),
-                        post.getUser().getImage(),
-                        post.getLikes().size(),
-                        post.getComments().size(),
-                        currentUser != null && postLikeRepository.existsByPostAndUser(post, currentUser)
-                ))
-                .toList();
+        Page<Post> postsPage = postRepository.findAll(pageable);
+
+        return postsPage.map(post -> new PostResponse(
+                post.getId(),
+                post.getContent(),
+                post.getImageUrl(),
+                post.getCreatedAt(),
+                post.getUpdatedAt(),
+                post.getUser().getId(),
+                post.getUser().getUsername(),
+                post.getUser().getImage(),
+                post.getLikes().size(),
+                post.getComments().size(),
+                currentUser != null && postLikeRepository.existsByPostAndUser(post, currentUser)
+        ));
     }
 
     public void deletePost(UUID postId, User currentUser) {
