@@ -36,7 +36,7 @@ public class PostController {
     @GetMapping
     public Page<PostResponse> getAllPosts(
             @AuthenticationPrincipal User currentUser,
-            @RequestParam(defaultValue = "0") @Min(1) int page,
+            @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "10") @Min(1) @Max(20) int size
     ) {
         return postService.getAllPosts(currentUser, page, size);
