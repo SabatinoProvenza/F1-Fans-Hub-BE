@@ -30,8 +30,36 @@ public class PostLike {
     private Post post;
 
     public PostLike() {
+    }
+
+    public PostLike(Post post, User user) {
+        this.post = post;
+        this.user = user;
         this.createdAt = LocalDateTime.now();
     }
 
+    public UUID getId() {
+        return id;
+    }
 
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Post getPost() {
+        return post;
+    }
+
+    public void setPost(Post post) {
+        this.post = post;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 }

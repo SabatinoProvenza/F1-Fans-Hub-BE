@@ -30,7 +30,9 @@ public class Comment {
     public Comment() {
     }
 
-    public Comment(String content) {
+    public Comment(String content, Post post, User user) {
+        this.post = post;
+        this.user = user;
         this.content = content;
         this.createdAt = LocalDateTime.now();
     }
@@ -41,6 +43,10 @@ public class Comment {
 
     public String getContent() {
         return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public LocalDateTime getCreatedAt() {

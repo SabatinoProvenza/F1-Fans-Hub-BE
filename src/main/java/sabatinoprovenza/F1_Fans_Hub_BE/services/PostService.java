@@ -7,9 +7,12 @@ import org.springframework.web.multipart.MultipartFile;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.PostRequest;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.PostResponse;
 import sabatinoprovenza.F1_Fans_Hub_BE.entities.Post;
+import sabatinoprovenza.F1_Fans_Hub_BE.entities.PostLike;
 import sabatinoprovenza.F1_Fans_Hub_BE.entities.User;
+import sabatinoprovenza.F1_Fans_Hub_BE.exceptions.BadRequestException;
 import sabatinoprovenza.F1_Fans_Hub_BE.exceptions.NotFoundException;
 import sabatinoprovenza.F1_Fans_Hub_BE.exceptions.UnauthorizedException;
+import sabatinoprovenza.F1_Fans_Hub_BE.repositories.PostLikeRepository;
 import sabatinoprovenza.F1_Fans_Hub_BE.repositories.PostRepository;
 
 import java.io.IOException;
@@ -21,10 +24,12 @@ import java.util.UUID;
 public class PostService {
     private final PostRepository postRepository;
     private final Cloudinary cloudinary;
+    private final PostLikeRepository postLikeRepository;
 
-    public PostService(PostRepository postRepository, Cloudinary cloudinary) {
+    public PostService(PostRepository postRepository, Cloudinary cloudinary, PostLikeRepository postLikeRepository) {
         this.postRepository = postRepository;
         this.cloudinary = cloudinary;
+        this.postLikeRepository = postLikeRepository;
     }
 
     public PostResponse createPost(PostRequest request, User user) {
@@ -57,11 +62,12 @@ public class PostService {
                 savedPost.getUser().getUsername(),
                 savedPost.getUser().getImage(),
                 savedPost.getLikes().size(),
-                savedPost.getComments().size()
+                savedPost.getComments().size(),
+                false
         );
     }
 
-    public List<PostResponse> getAllPosts() {
+    public List<PostResponse> getAllPosts(User currentUser) {
 
         List<Post> posts = postRepository.findAllByOrderByCreatedAtDesc();
 
@@ -76,7 +82,8 @@ public class PostService {
                         post.getUser().getUsername(),
                         post.getUser().getImage(),
                         post.getLikes().size(),
-                        post.getComments().size()
+                        post.getComments().size(),
+                        currentUser != null && postLikeRepository.existsByPostAndUser(post, currentUser)
                 ))
                 .toList();
     }
@@ -137,7 +144,70 @@ public class PostService {
                 updatedPost.getUser().getUsername(),
                 updatedPost.getUser().getImage(),
                 updatedPost.getLikes().size(),
-                updatedPost.getComments().size()
+                updatedPost.getComments().size(),
+                postLikeRepository.existsByPostAndUser(updatedPost, currentUser)
+        );
+    }
+
+    public PostResponse likePost(UUID postId, User currentUser) {
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new NotFoundException("Post non trovato"));
+
+        boolean alreadyLiked = postLikeRepository.existsByPostAndUser(post, currentUser);
+
+        if (alreadyLiked) {
+            throw new BadRequestException("Hai già messo like a questo post");
+        }
+
+        PostLike postLike = new PostLike(post, currentUser);
+        postLikeRepository.save(postLike);
+
+        // ricarico il post aggiornato
+        Post updatedPost = postRepository.findById(postId)
+                .orElseThrow(() -> new NotFoundException("Post non trovato"));
+
+        return new PostResponse(
+                updatedPost.getId(),
+                updatedPost.getContent(),
+                updatedPost.getImageUrl(),
+                updatedPost.getCreatedAt(),
+                updatedPost.getUpdatedAt(),
+                updatedPost.getUser().getId(),
+                updatedPost.getUser().getUsername(),
+                updatedPost.getUser().getImage(),
+                updatedPost.getLikes().size(),
+                updatedPost.getComments().size(),
+                true
+        );
+    }
+
+    public PostResponse unlikePost(UUID postId, User currentUser) {
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new NotFoundException("Post non trovato"));
+
+        PostLike postLike = postLikeRepository.findByPostAndUser(post, currentUser)
+                .orElseThrow(() -> new BadRequestException("Non hai ancora messo like a questo post"));
+
+        postLikeRepository.delete(postLike);
+
+        // ricarico il post aggiornato
+        Post updatedPost = postRepository.findById(postId)
+                .orElseThrow(() -> new NotFoundException("Post non trovato"));
+
+        return new PostResponse(
+                updatedPost.getId(),
+                updatedPost.getContent(),
+                updatedPost.getImageUrl(),
+                updatedPost.getCreatedAt(),
+                updatedPost.getUpdatedAt(),
+                updatedPost.getUser().getId(),
+                updatedPost.getUser().getUsername(),
+                updatedPost.getUser().getImage(),
+                updatedPost.getLikes().size(),
+                updatedPost.getComments().size(),
+                false
         );
     }
 }

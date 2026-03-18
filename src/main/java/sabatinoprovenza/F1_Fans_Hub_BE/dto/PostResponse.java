@@ -13,7 +13,8 @@ public record PostResponse(
         String userUsername,
         String userImage,
         int likesCount,
-        int commentsCount
+        int commentsCount,
+        boolean likedByCurrentUser
 
 ) {
 }

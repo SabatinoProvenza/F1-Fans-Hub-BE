@@ -32,8 +32,10 @@ public class PostController {
     }
 
     @GetMapping
-    public List<PostResponse> getAllPosts() {
-        return postService.getAllPosts();
+    public List<PostResponse> getAllPosts(
+            @AuthenticationPrincipal User currentUser
+    ) {
+        return postService.getAllPosts(currentUser);
     }
 
     @DeleteMapping("/{postId}")
@@ -51,5 +53,22 @@ public class PostController {
             @AuthenticationPrincipal User currentUser
     ) {
         return postService.patchPost(postId, request, currentUser);
+    }
+
+    @PostMapping("/{postId}/like")
+    @ResponseStatus(HttpStatus.CREATED)
+    public PostResponse likePost(
+            @PathVariable UUID postId,
+            @AuthenticationPrincipal User currentUser
+    ) {
+        return postService.likePost(postId, currentUser);
+    }
+
+    @DeleteMapping("/{postId}/like")
+    public PostResponse unlikePost(
+            @PathVariable UUID postId,
+            @AuthenticationPrincipal User currentUser
+    ) {
+        return postService.unlikePost(postId, currentUser);
     }
 }
