@@ -11,6 +11,7 @@ public record RegisterDTO(
         @NotBlank(message = "Il cognome è obbligatorio")
         String surname,
         @NotBlank(message = "L'username è obbligatorio")
+        @Size(min = 1, max = 10, message = "L'username deve essere almeno 1 carattere e massimo 10")
         String username,
         @NotBlank(message = "L'email è obbligatoria")
         @Email(message = "Formato dell'email non valido")
