@@ -11,7 +11,7 @@ import sabatinoprovenza.F1_Fans_Hub_BE.entities.Comment;
 import sabatinoprovenza.F1_Fans_Hub_BE.entities.Post;
 import sabatinoprovenza.F1_Fans_Hub_BE.entities.User;
 import sabatinoprovenza.F1_Fans_Hub_BE.exceptions.NotFoundException;
-import sabatinoprovenza.F1_Fans_Hub_BE.exceptions.UnauthorizedException;
+import sabatinoprovenza.F1_Fans_Hub_BE.exceptions.UnauthorizedActionException;
 import sabatinoprovenza.F1_Fans_Hub_BE.repositories.CommentRepository;
 import sabatinoprovenza.F1_Fans_Hub_BE.repositories.PostRepository;
 
@@ -74,7 +74,7 @@ public class CommentService {
                 .orElseThrow(() -> new NotFoundException("Commento non trovato"));
 
         if (!comment.getUser().getId().equals(currentUser.getId())) {
-            throw new UnauthorizedException("Non puoi modificare questo commento");
+            throw new UnauthorizedActionException("Non puoi modificare questo commento");
         }
 
         if (request.content() != null && !request.content().isBlank()) {
@@ -100,7 +100,7 @@ public class CommentService {
                 .orElseThrow(() -> new NotFoundException("Commento non trovato"));
 
         if (!comment.getUser().getId().equals(currentUser.getId())) {
-            throw new UnauthorizedException("Non puoi eliminare questo commento");
+            throw new UnauthorizedActionException("Non puoi eliminare questo commento");
         }
 
         commentRepository.delete(comment);

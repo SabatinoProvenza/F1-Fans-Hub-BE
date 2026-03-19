@@ -51,4 +51,14 @@ public class ErrorHandler {
                 List.of(ex.getMessage())
         );
     }
+
+    @ExceptionHandler(UnauthorizedActionException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorsDTO handleBadRequestException(UnauthorizedActionException ex) {
+        return new ErrorsDTO(
+                ex.getMessage(),
+                LocalDateTime.now(),
+                List.of(ex.getMessage())
+        );
+    }
 }

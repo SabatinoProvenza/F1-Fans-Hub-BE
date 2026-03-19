@@ -51,7 +51,7 @@ public class CommentController {
         return commentService.patchComment(commentId, request, currentUser);
     }
 
-    @DeleteMapping("comments/{commentId}")
+    @DeleteMapping("/comments/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteComment(
             @PathVariable UUID commentId,

@@ -15,7 +15,7 @@ import sabatinoprovenza.F1_Fans_Hub_BE.entities.PostLike;
 import sabatinoprovenza.F1_Fans_Hub_BE.entities.User;
 import sabatinoprovenza.F1_Fans_Hub_BE.exceptions.BadRequestException;
 import sabatinoprovenza.F1_Fans_Hub_BE.exceptions.NotFoundException;
-import sabatinoprovenza.F1_Fans_Hub_BE.exceptions.UnauthorizedException;
+import sabatinoprovenza.F1_Fans_Hub_BE.exceptions.UnauthorizedActionException;
 import sabatinoprovenza.F1_Fans_Hub_BE.repositories.PostLikeRepository;
 import sabatinoprovenza.F1_Fans_Hub_BE.repositories.PostRepository;
 
@@ -98,7 +98,7 @@ public class PostService {
                 .orElseThrow(() -> new NotFoundException("Post non trovato"));
 
         if (!post.getUser().getId().equals(currentUser.getId())) {
-            throw new UnauthorizedException("Non puoi eliminare questo post");
+            throw new UnauthorizedActionException("Non puoi eliminare questo post");
         }
 
         postRepository.delete(post);
@@ -110,7 +110,7 @@ public class PostService {
                 .orElseThrow(() -> new NotFoundException("Post non trovato"));
 
         if (!post.getUser().getId().equals(currentUser.getId())) {
-            throw new UnauthorizedException("Non puoi modificare questo post");
+            throw new UnauthorizedActionException("Non puoi modificare questo post");
         }
 
         // Aggiorna content solo se presente e non vuoto
