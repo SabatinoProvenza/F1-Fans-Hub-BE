@@ -47,7 +47,7 @@ public class AuthService {
             System.out.println("Invio email di benvenuto fallito: {} " + e.getMessage());
         }
 
-        return new UserResponse(u.getId(), u.getName(), u.getSurname(), u.getUsername(), u.getEmail(), u.getImage());
+        return new UserResponse(u.getId(), u.getName(), u.getSurname(), u.getUsername(), u.getEmail(), u.getImage(), u.getRole());
     }
 
     public LoginResponseDTO userLogin(LoginDTO dto) {
@@ -72,7 +72,8 @@ public class AuthService {
                 currentUser.getSurname(),
                 currentUser.getUsername(),
                 currentUser.getEmail(),
-                currentUser.getImage()
+                currentUser.getImage(),
+                currentUser.getRole()
 
         );
     }

@@ -12,4 +12,8 @@ import java.util.UUID;
 public interface CommentRepository extends JpaRepository<Comment, UUID> {
 
     Page<Comment> findByPostId(UUID postId, Pageable pageable);
+
+    Page<Comment> findByUserUsernameContainingIgnoreCase(String username, Pageable pageable);
+
+    Page<Comment> findByPostIdAndUserUsernameContainingIgnoreCase(UUID postId, String username, Pageable pageable);
 }

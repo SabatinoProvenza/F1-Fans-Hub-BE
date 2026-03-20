@@ -1,6 +1,8 @@
 package sabatinoprovenza.F1_Fans_Hub_BE.dto;
 
 
+import sabatinoprovenza.F1_Fans_Hub_BE.entities.Role;
+
 import java.util.UUID;
 
 public record UserResponse(
@@ -9,7 +11,8 @@ public record UserResponse(
         String surname,
         String username,
         String email,
-        String image
+        String image,
+        Role role
 ) {
 
 }

@@ -91,7 +91,8 @@ public class UserService {
                 currentUser.getSurname(),
                 currentUser.getUsername(),
                 currentUser.getEmail(),
-                currentUser.getImage()
+                currentUser.getImage(),
+                currentUser.getRole()
         );
     }
 
@@ -113,7 +114,8 @@ public class UserService {
                 currentUser.getSurname(),
                 currentUser.getUsername(),
                 currentUser.getEmail(),
-                currentUser.getImage()
+                currentUser.getImage(),
+                currentUser.getRole()
         );
     }
 
@@ -147,7 +149,7 @@ public class UserService {
             currentUser.setImage(imageUrl);
 
             userRepository.save(currentUser);
-            return new UserResponse(currentUser.getId(), currentUser.getName(), currentUser.getSurname(), currentUser.getUsername(), currentUser.getEmail(), currentUser.getImage());
+            return new UserResponse(currentUser.getId(), currentUser.getName(), currentUser.getSurname(), currentUser.getUsername(), currentUser.getEmail(), currentUser.getImage(), currentUser.getRole());
 
         } catch (IOException e) {
             throw new RuntimeException(e);
