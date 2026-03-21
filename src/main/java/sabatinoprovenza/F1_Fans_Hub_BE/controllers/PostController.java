@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Min;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.PostRequest;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.PostResponse;
@@ -33,6 +34,7 @@ public class PostController {
 
     }
 
+    @Validated
     @GetMapping
     public Page<PostResponse> getAllPosts(
             @AuthenticationPrincipal User currentUser,

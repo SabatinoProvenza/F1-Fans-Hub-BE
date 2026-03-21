@@ -1,6 +1,10 @@
 package sabatinoprovenza.F1_Fans_Hub_BE.services;
 
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.ArticleResponse;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.FavoriteResponse;
@@ -67,11 +71,23 @@ public class FavoriteService {
                 .toList();
     }
 
-    public List<FavoriteResponse> getFavorites(UUID userId) {
+    public Page<FavoriteResponse> getFavorites(UUID userId, int page, int size, String sort, String direction) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Utente non trovato"));
 
-        return favoriteRepository.findByUserOrderBySavedAtDesc(user).stream()
+        String sortField = switch (sort) {
+            case "savedAt" -> "savedAt";
+            case "pubDate" -> "article.pubDate";
+            default -> "savedAt";
+        };
+
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("asc")
+                ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortField));
+
+        return favoriteRepository.findByUser(user, pageable)
                 .map(favorite -> {
                     Article article = favorite.getArticle();
 
@@ -88,8 +104,7 @@ public class FavoriteService {
                             true,
                             favorite.getSavedAt()
                     );
-                })
-                .toList();
+                });
     }
 
     @Transactional

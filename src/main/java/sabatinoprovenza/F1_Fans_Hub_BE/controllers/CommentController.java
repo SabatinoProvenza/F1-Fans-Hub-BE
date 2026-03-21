@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Min;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.CommentRequest;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.CommentResponse;
@@ -32,6 +33,7 @@ public class CommentController {
         return commentService.createComment(postId, request, currentUser);
     }
 
+    @Validated
     @GetMapping("/post/{postId}/comments")
     public Page<CommentResponse> getCommentsByPost(
             @PathVariable UUID postId,
