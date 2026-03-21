@@ -3,6 +3,7 @@ package sabatinoprovenza.F1_Fans_Hub_BE.controllers;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.CommentResponse;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.PostResponse;
@@ -20,6 +21,7 @@ public class AdminController {
         this.adminService = adminService;
     }
 
+    @Validated
     @GetMapping("/posts")
     public Page<PostResponse> getAllPosts(
             @RequestParam(required = false) String username,
@@ -34,6 +36,7 @@ public class AdminController {
         adminService.deletePost(postId);
     }
 
+    @Validated
     @GetMapping("/comments")
     public Page<CommentResponse> getAllComments(
             @RequestParam(required = false) String username,
@@ -42,6 +45,7 @@ public class AdminController {
         return adminService.getAllComments(username, page, size);
     }
 
+    @Validated
     @GetMapping("/posts/{postId}/comments")
     public Page<CommentResponse> getCommentsByPost(
             @PathVariable UUID postId,
