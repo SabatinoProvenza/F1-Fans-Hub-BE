@@ -76,7 +76,11 @@ public class UserService {
             favoriteService.removeFavorite(user, favorite.getArticle().getGuid());
         }
 
+        String shortId = user.getId().toString().substring(0, 6);
+
         user.setDeletedAt(LocalDateTime.now());
+        user.setUsername("del_" + shortId);
+        user.setEmail("deleted_" + user.getId() + "@deleted.local");
         userRepository.save(user);
     }
 
