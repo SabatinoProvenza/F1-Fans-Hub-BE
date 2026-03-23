@@ -43,7 +43,7 @@ public class JWTCheckerFilter extends OncePerRequestFilter {
             jwtTools.verifyToken(token);
 
             UUID userId = jwtTools.extractIdFromToken(token);
-            User user = this.userService.findById(userId);
+            User user = this.userService.findActiveUserById(userId);
 
             Authentication authentication =
                     new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());

@@ -15,10 +15,12 @@ import sabatinoprovenza.F1_Fans_Hub_BE.entities.User;
 import sabatinoprovenza.F1_Fans_Hub_BE.exceptions.BadRequestException;
 import sabatinoprovenza.F1_Fans_Hub_BE.exceptions.NotFoundException;
 import sabatinoprovenza.F1_Fans_Hub_BE.exceptions.UnauthorizedException;
+import sabatinoprovenza.F1_Fans_Hub_BE.mapper.UserMapper;
 import sabatinoprovenza.F1_Fans_Hub_BE.repositories.FavoriteRepository;
 import sabatinoprovenza.F1_Fans_Hub_BE.repositories.UserRepository;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -30,13 +32,15 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final FavoriteService favoriteService;
     private final FavoriteRepository favoriteRepository;
+    private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository, Cloudinary cloudinary, PasswordEncoder passwordEncoder, FavoriteService favoriteService, FavoriteRepository favoriteRepository) {
+    public UserService(UserRepository userRepository, Cloudinary cloudinary, PasswordEncoder passwordEncoder, FavoriteService favoriteService, FavoriteRepository favoriteRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.cloudinary = cloudinary;
         this.passwordEncoder = passwordEncoder;
         this.favoriteService = favoriteService;
         this.favoriteRepository = favoriteRepository;
+        this.userMapper = userMapper;
     }
 
     public boolean existByEmail(String email) {
@@ -52,12 +56,13 @@ public class UserService {
     }
 
     public User findByEmailForLogin(String email) {
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmailAndDeletedAtIsNull(email)
                 .orElseThrow(() -> new UnauthorizedException("Le credenziali inserite sono errate!"));
     }
 
-    public User findById(UUID id) {
-        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("L'utente con id: " + id + " non è stato trovato"));
+    public User findActiveUserById(UUID userId) {
+        return userRepository.findByIdAndDeletedAtIsNull(userId)
+                .orElseThrow(() -> new UnauthorizedException("Utente non autenticato"));
     }
 
     @Transactional
@@ -71,7 +76,8 @@ public class UserService {
             favoriteService.removeFavorite(user, favorite.getArticle().getGuid());
         }
 
-        userRepository.delete(user);
+        user.setDeletedAt(LocalDateTime.now());
+        userRepository.save(user);
     }
 
     public UserResponse updateUsername(UpdateUsernameRequest request, User currentUser) {
@@ -85,15 +91,7 @@ public class UserService {
         currentUser.setUsername(request.username());
         userRepository.save(currentUser);
 
-        return new UserResponse(
-                currentUser.getId(),
-                currentUser.getName(),
-                currentUser.getSurname(),
-                currentUser.getUsername(),
-                currentUser.getEmail(),
-                currentUser.getImage(),
-                currentUser.getRole()
-        );
+        return userMapper.toResponse(currentUser);
     }
 
     public UserResponse updateEmail(UpdateEmailRequest request, User currentUser) {
@@ -108,15 +106,7 @@ public class UserService {
         currentUser.setEmail(request.email());
         userRepository.save(currentUser);
 
-        return new UserResponse(
-                currentUser.getId(),
-                currentUser.getName(),
-                currentUser.getSurname(),
-                currentUser.getUsername(),
-                currentUser.getEmail(),
-                currentUser.getImage(),
-                currentUser.getRole()
-        );
+        return userMapper.toResponse(currentUser);
     }
 
     public void updatePassword(User currentUser, UpdatePasswordRequest request) {

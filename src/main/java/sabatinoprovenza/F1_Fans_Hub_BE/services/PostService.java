@@ -10,12 +10,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.PostRequest;
 import sabatinoprovenza.F1_Fans_Hub_BE.dto.PostResponse;
+import sabatinoprovenza.F1_Fans_Hub_BE.dto.UserResponse;
 import sabatinoprovenza.F1_Fans_Hub_BE.entities.Post;
 import sabatinoprovenza.F1_Fans_Hub_BE.entities.PostLike;
 import sabatinoprovenza.F1_Fans_Hub_BE.entities.User;
 import sabatinoprovenza.F1_Fans_Hub_BE.exceptions.BadRequestException;
 import sabatinoprovenza.F1_Fans_Hub_BE.exceptions.NotFoundException;
 import sabatinoprovenza.F1_Fans_Hub_BE.exceptions.UnauthorizedActionException;
+import sabatinoprovenza.F1_Fans_Hub_BE.mapper.UserMapper;
 import sabatinoprovenza.F1_Fans_Hub_BE.repositories.PostLikeRepository;
 import sabatinoprovenza.F1_Fans_Hub_BE.repositories.PostRepository;
 
@@ -28,11 +30,13 @@ public class PostService {
     private final PostRepository postRepository;
     private final Cloudinary cloudinary;
     private final PostLikeRepository postLikeRepository;
+    private final UserMapper userMapper;
 
-    public PostService(PostRepository postRepository, Cloudinary cloudinary, PostLikeRepository postLikeRepository) {
+    public PostService(PostRepository postRepository, Cloudinary cloudinary, PostLikeRepository postLikeRepository, UserMapper userMapper) {
         this.postRepository = postRepository;
         this.cloudinary = cloudinary;
         this.postLikeRepository = postLikeRepository;
+        this.userMapper = userMapper;
     }
 
     public PostResponse createPost(PostRequest request, User user) {
@@ -55,15 +59,17 @@ public class PostService {
 
         Post savedPost = postRepository.save(post);
 
+        UserResponse author = userMapper.toResponse(savedPost.getUser());
+
         return new PostResponse(
                 savedPost.getId(),
                 savedPost.getContent(),
                 savedPost.getImageUrl(),
                 savedPost.getCreatedAt(),
                 savedPost.getUpdatedAt(),
-                savedPost.getUser().getId(),
-                savedPost.getUser().getUsername(),
-                savedPost.getUser().getImage(),
+                author.id(),
+                author.username(),
+                author.image(),
                 savedPost.getLikes().size(),
                 savedPost.getComments().size(),
                 false
@@ -76,19 +82,23 @@ public class PostService {
 
         Page<Post> postsPage = postRepository.findAll(pageable);
 
-        return postsPage.map(post -> new PostResponse(
-                post.getId(),
-                post.getContent(),
-                post.getImageUrl(),
-                post.getCreatedAt(),
-                post.getUpdatedAt(),
-                post.getUser().getId(),
-                post.getUser().getUsername(),
-                post.getUser().getImage(),
-                post.getLikes().size(),
-                post.getComments().size(),
-                currentUser != null && postLikeRepository.existsByPostAndUser(post, currentUser)
-        ));
+        return postsPage.map(post -> {
+            UserResponse author = userMapper.toResponse(post.getUser());
+
+            return new PostResponse(
+                    post.getId(),
+                    post.getContent(),
+                    post.getImageUrl(),
+                    post.getCreatedAt(),
+                    post.getUpdatedAt(),
+                    author.id(),
+                    author.username(),
+                    author.image(),
+                    post.getLikes().size(),
+                    post.getComments().size(),
+                    currentUser != null && postLikeRepository.existsByPostAndUser(post, currentUser)
+            );
+        });
     }
 
     public void deletePost(UUID postId, User currentUser) {
@@ -113,7 +123,6 @@ public class PostService {
             throw new UnauthorizedActionException("Non puoi modificare questo post");
         }
 
-        // Aggiorna content solo se presente e non vuoto
         if (request.content() != null && !request.content().isBlank()) {
             post.setContent(request.content());
         }
@@ -122,7 +131,6 @@ public class PostService {
             post.setImageUrl(null);
         }
 
-        // Aggiorna immagine solo se arriva un file
         MultipartFile file = request.image();
 
         try {
@@ -136,6 +144,7 @@ public class PostService {
         }
 
         Post updatedPost = postRepository.save(post);
+        UserResponse author = userMapper.toResponse(updatedPost.getUser());
 
         return new PostResponse(
                 updatedPost.getId(),
@@ -143,9 +152,9 @@ public class PostService {
                 updatedPost.getImageUrl(),
                 updatedPost.getCreatedAt(),
                 updatedPost.getUpdatedAt(),
-                updatedPost.getUser().getId(),
-                updatedPost.getUser().getUsername(),
-                updatedPost.getUser().getImage(),
+                author.id(),
+                author.username(),
+                author.image(),
                 updatedPost.getLikes().size(),
                 updatedPost.getComments().size(),
                 postLikeRepository.existsByPostAndUser(updatedPost, currentUser)
@@ -166,9 +175,10 @@ public class PostService {
         PostLike postLike = new PostLike(post, currentUser);
         postLikeRepository.save(postLike);
 
-        // ricarico il post aggiornato
         Post updatedPost = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException("Post non trovato"));
+
+        UserResponse author = userMapper.toResponse(updatedPost.getUser());
 
         return new PostResponse(
                 updatedPost.getId(),
@@ -176,9 +186,9 @@ public class PostService {
                 updatedPost.getImageUrl(),
                 updatedPost.getCreatedAt(),
                 updatedPost.getUpdatedAt(),
-                updatedPost.getUser().getId(),
-                updatedPost.getUser().getUsername(),
-                updatedPost.getUser().getImage(),
+                author.id(),
+                author.username(),
+                author.image(),
                 updatedPost.getLikes().size(),
                 updatedPost.getComments().size(),
                 true
@@ -195,9 +205,10 @@ public class PostService {
 
         postLikeRepository.delete(postLike);
 
-        // ricarico il post aggiornato
         Post updatedPost = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException("Post non trovato"));
+
+        UserResponse author = userMapper.toResponse(updatedPost.getUser());
 
         return new PostResponse(
                 updatedPost.getId(),
@@ -205,9 +216,9 @@ public class PostService {
                 updatedPost.getImageUrl(),
                 updatedPost.getCreatedAt(),
                 updatedPost.getUpdatedAt(),
-                updatedPost.getUser().getId(),
-                updatedPost.getUser().getUsername(),
-                updatedPost.getUser().getImage(),
+                author.id(),
+                author.username(),
+                author.image(),
                 updatedPost.getLikes().size(),
                 updatedPost.getComments().size(),
                 false

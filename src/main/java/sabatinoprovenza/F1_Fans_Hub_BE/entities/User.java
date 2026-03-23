@@ -5,6 +5,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -39,6 +40,9 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role = Role.USER;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     @OneToMany(mappedBy = "user")
     private List<Favorite> favorites = new ArrayList<>();
@@ -129,6 +133,14 @@ public class User implements UserDetails {
         this.image = image;
     }
 
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
+    }
+
     public List<Favorite> getFavorites() {
         return favorites;
     }
@@ -147,5 +159,10 @@ public class User implements UserDetails {
 
     public List<PostLike> getLikes() {
         return likes;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return deletedAt == null;
     }
 }

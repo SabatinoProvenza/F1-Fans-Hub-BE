@@ -62,7 +62,7 @@ public class AuthService {
     }
 
     public UserResponse getCurrentUser(User currentUser) {
-        if (currentUser == null) {
+        if (currentUser == null || currentUser.getDeletedAt() != null) {
             throw new UnauthorizedException("Utente non autenticato");
         }
 
