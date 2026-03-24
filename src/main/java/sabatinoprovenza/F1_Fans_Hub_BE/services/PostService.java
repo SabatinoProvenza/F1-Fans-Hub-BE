@@ -31,12 +31,14 @@ public class PostService {
     private final Cloudinary cloudinary;
     private final PostLikeRepository postLikeRepository;
     private final UserMapper userMapper;
+    private final ImageValidationService imageValidationService;
 
-    public PostService(PostRepository postRepository, Cloudinary cloudinary, PostLikeRepository postLikeRepository, UserMapper userMapper) {
+    public PostService(PostRepository postRepository, Cloudinary cloudinary, PostLikeRepository postLikeRepository, UserMapper userMapper, ImageValidationService imageValidationService) {
         this.postRepository = postRepository;
         this.cloudinary = cloudinary;
         this.postLikeRepository = postLikeRepository;
         this.userMapper = userMapper;
+        this.imageValidationService = imageValidationService;
     }
 
     public PostResponse createPost(PostRequest request, User user) {
@@ -46,6 +48,7 @@ public class PostService {
 
         try {
             if (file != null && !file.isEmpty()) {
+                imageValidationService.validateImage(file);
                 Map result = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
                 imageUrl = (String) result.get("secure_url");
             }
@@ -135,6 +138,7 @@ public class PostService {
 
         try {
             if (file != null && !file.isEmpty()) {
+                imageValidationService.validateImage(file);
                 Map result = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
                 String imageUrl = (String) result.get("secure_url");
                 post.setImageUrl(imageUrl);
