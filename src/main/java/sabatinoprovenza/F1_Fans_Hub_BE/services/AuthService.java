@@ -30,21 +30,28 @@ public class AuthService {
     }
 
     public UserResponse userRegister(RegisterDTO dto) {
-        if (userService.existByEmail(dto.email()))
+
+        String email = dto.email().trim().toLowerCase();
+        String username = dto.username().trim().toLowerCase();
+
+        if (userService.existByEmail(email))
             throw new BadRequestException("Email già in uso!");
 
-        if (userService.existByUsername(dto.username()))
+        if (userService.existByUsername(username))
             throw new BadRequestException("Username già in uso!");
 
+        String normalizedName = normalizePersonName(dto.name());
+        String normalizedSurname = normalizePersonName(dto.surname());
+
         User u = userRepository.save(new User(
-                dto.username(), dto.name(), dto.surname(), dto.email(), bcrypt.encode(dto.password())
+                username, normalizedName, normalizedSurname, email, bcrypt.encode(dto.password())
         ));
 
         try {
             emailService.sendWelcomeEmail(u.getEmail(), u.getUsername());
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Invio email di benvenuto fallito: {} " + e.getMessage());
+            System.out.println("Invio email di benvenuto fallito: " + e.getMessage());
         }
 
         return new UserResponse(u.getId(), u.getName(), u.getSurname(), u.getUsername(), u.getEmail(), u.getImage(), u.getRole());
@@ -76,5 +83,25 @@ public class AuthService {
                 currentUser.getRole()
 
         );
+    }
+
+    private String normalizePersonName(String value) {
+        if (value == null || value.isBlank()) return value;
+
+        String[] parts = value.trim().toLowerCase().split("\\s+");
+        StringBuilder result = new StringBuilder();
+
+        for (int i = 0; i < parts.length; i++) {
+            String word = parts[i];
+            if (!word.isEmpty()) {
+                result.append(Character.toUpperCase(word.charAt(0)))
+                        .append(word.substring(1));
+                if (i < parts.length - 1) {
+                    result.append(" ");
+                }
+            }
+        }
+
+        return result.toString();
     }
 }
