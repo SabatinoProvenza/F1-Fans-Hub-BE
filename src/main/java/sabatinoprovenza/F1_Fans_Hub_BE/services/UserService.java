@@ -33,14 +33,16 @@ public class UserService {
     private final FavoriteService favoriteService;
     private final FavoriteRepository favoriteRepository;
     private final UserMapper userMapper;
+    private final ImageValidationService imageValidationService;
 
-    public UserService(UserRepository userRepository, Cloudinary cloudinary, PasswordEncoder passwordEncoder, FavoriteService favoriteService, FavoriteRepository favoriteRepository, UserMapper userMapper) {
+    public UserService(UserRepository userRepository, Cloudinary cloudinary, PasswordEncoder passwordEncoder, FavoriteService favoriteService, FavoriteRepository favoriteRepository, UserMapper userMapper, ImageValidationService imageValidationService) {
         this.userRepository = userRepository;
         this.cloudinary = cloudinary;
         this.passwordEncoder = passwordEncoder;
         this.favoriteService = favoriteService;
         this.favoriteRepository = favoriteRepository;
         this.userMapper = userMapper;
+        this.imageValidationService = imageValidationService;
     }
 
     public boolean existByEmail(String email) {
@@ -85,29 +87,29 @@ public class UserService {
     }
 
     public UserResponse updateUsername(UpdateUsernameRequest request, User currentUser) {
+        String username = request.username().trim().toLowerCase();
+        boolean usernameExist = userRepository.existsByUsername(username);
 
-        boolean usernameExist = userRepository.existsByUsername(request.username());
-
-        if (usernameExist && !currentUser.getUsername().equals(request.username())) {
+        if (usernameExist && !currentUser.getUsername().equalsIgnoreCase(username)) {
             throw new BadRequestException("Username già in uso");
         }
 
-        currentUser.setUsername(request.username());
+        currentUser.setUsername(username);
         userRepository.save(currentUser);
 
         return userMapper.toResponse(currentUser);
     }
 
     public UserResponse updateEmail(UpdateEmailRequest request, User currentUser) {
+        String email = request.email().trim().toLowerCase();
 
+        boolean emailExists = userRepository.existsByEmail(email);
 
-        boolean emailExists = userRepository.existsByEmail(request.email());
-
-        if (emailExists && !currentUser.getEmail().equals(request.email())) {
+        if (emailExists && !currentUser.getEmail().equals(email)) {
             throw new BadRequestException("Email già in uso");
         }
 
-        currentUser.setEmail(request.email());
+        currentUser.setEmail(email);
         userRepository.save(currentUser);
 
         return userMapper.toResponse(currentUser);
@@ -136,6 +138,7 @@ public class UserService {
         if (file.isEmpty()) throw new BadRequestException("Il file non può essere vuoto");
 
         try {
+            imageValidationService.validateImage(file);
             Map result = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
 
             String imageUrl = (String) result.get("secure_url");
@@ -146,7 +149,7 @@ public class UserService {
             return new UserResponse(currentUser.getId(), currentUser.getName(), currentUser.getSurname(), currentUser.getUsername(), currentUser.getEmail(), currentUser.getImage(), currentUser.getRole());
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new BadRequestException("Errore upload immagine");
         }
     }
 

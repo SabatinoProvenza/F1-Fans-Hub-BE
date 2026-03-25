@@ -54,7 +54,7 @@ public class PostService {
             }
 
         } catch (IOException e) {
-            throw new RuntimeException("Errore upload immagine", e);
+            throw new BadRequestException("Errore upload immagine");
         }
 
         Post post = new Post(request.content(), imageUrl);
@@ -144,7 +144,7 @@ public class PostService {
                 post.setImageUrl(imageUrl);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Errore upload immagine", e);
+            throw new BadRequestException("Errore upload immagine");
         }
 
         Post updatedPost = postRepository.save(post);
