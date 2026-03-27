@@ -32,6 +32,7 @@ public class SecurityConfig {
         httpSecurity.csrf(csrf -> csrf.disable());
         httpSecurity.sessionManagement(sessions -> sessions.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         httpSecurity.authorizeHttpRequests(req -> req
+                .requestMatchers("/health").permitAll()
                 .requestMatchers("/auth/login", "/auth/register").permitAll()
                 .requestMatchers("/api/news/**").permitAll()
                 .requestMatchers("/favorites/**").authenticated()
