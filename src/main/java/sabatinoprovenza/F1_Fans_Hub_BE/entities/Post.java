@@ -1,8 +1,10 @@
 package sabatinoprovenza.F1_Fans_Hub_BE.entities;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -22,10 +24,12 @@ public class Post {
     private String imageUrl;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    @CreationTimestamp
+    private Instant createdAt;
 
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @UpdateTimestamp
+    private Instant updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -43,8 +47,6 @@ public class Post {
     public Post(String content, String imageUrl) {
         this.content = content;
         this.imageUrl = imageUrl;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
     }
 
     public UUID getId() {
@@ -67,11 +69,11 @@ public class Post {
         this.imageUrl = imageUrl;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public Instant getUpdatedAt() {
         return updatedAt;
     }
 

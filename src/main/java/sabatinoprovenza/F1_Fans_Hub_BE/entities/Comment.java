@@ -1,8 +1,9 @@
 package sabatinoprovenza.F1_Fans_Hub_BE.entities;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -17,7 +18,8 @@ public class Comment {
     private String content;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    @CreationTimestamp
+    private Instant createdAt;
 
     @ManyToOne
     @JoinColumn(name = "post_id", nullable = false)
@@ -34,7 +36,6 @@ public class Comment {
         this.post = post;
         this.user = user;
         this.content = content;
-        this.createdAt = LocalDateTime.now();
     }
 
     public UUID getId() {
@@ -49,7 +50,7 @@ public class Comment {
         this.content = content;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
